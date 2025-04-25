@@ -1,35 +1,56 @@
+# app.py
 import streamlit as st
+import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
-import pickle
-from sklearn.cluster import KMeans
+import numpy as np
 
-st.title("Customer Segmentation with KMeans")
+# Streamlit page config
+st.set_page_config(page_title="Customer Segmentation App", layout="centered")
+st.title("Customer Segmentation with KMeans\nby Thawatchai Duangmala")
 
-# Upload CSV data
-csv_file = st.file_uploader("Upload Customer Dataset (CSV)", type=['csv'])
-model_file = st.file_uploader("Upload Trained KMeans Model (.pkl)", type=["pkl"])
+# Sidebar
+st.sidebar.header("Upload Files & Configure")
 
-if csv_file is not None and model_file is not None:
+# Upload dataset and model
+data_file = st.sidebar.file_uploader("Upload Customer CSV", type=["csv"])
+model_file = st.sidebar.file_uploader("Upload KMeans Model (.pkl)", type=["pkl"])
+
+if data_file is not None and model_file is not None:
     # Load data
-    data = pd.read_csv(csv_file)
-    st.write("Preview of Dataset:", data.head())
+    df = pd.read_csv(data_file)
+    
+    # Show preview
+    st.subheader("Preview of Uploaded Data")
+    st.write(df.head())
 
-    # Select features
-    X = data[['Annual Income (k$)', 'Spending Score (1-100)']]
+    # Check required columns
+    if 'Annual Income (k$)' in df.columns and 'Spending Score (1-100)' in df.columns:
+        X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
 
-    # Load model
-    kmeans = pickle.load(model_file)
+        # Load the model
+        kmeans = pickle.load(model_file)
 
-    # Predict
-    y_kmeans = kmeans.predict(X)
+        # Predict clusters
+        y_kmeans = kmeans.predict(X)
 
-    # Plot clusters
-    fig, ax = plt.subplots()
-    scatter = ax.scatter(X['Annual Income (k$)'], X['Spending Score (1-100)'], c=y_kmeans, cmap='viridis')
-    ax.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=300, c='red', label='Centroids')
-    ax.set_xlabel('Annual Income (k$)')
-    ax.set_ylabel('Spending Score (1-100)')
-    ax.set_title('Customer Segments')
-    ax.legend()
-    st.pyplot(fig)
+        # Define color palette
+        n_clusters = kmeans.n_clusters
+        colors = plt.cm.tab10(np.linspace(0, 1, n_clusters))
+
+        # Plot
+        plt.figure(figsize=(8, 6))
+        for i in range(n_clusters):
+            plt.scatter(X.values[y_kmeans == i, 0], X.values[y_kmeans == i, 1],
+                        c=[colors[i]], s=50, label=f"Cluster {i}")
+        plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1],
+                    s=300, c='red', label='Centroids', marker='X')
+        plt.xlabel("Annual Income (k$)")
+        plt.ylabel("Spending Score (1-100)")
+        plt.title("Customer Segments")
+        plt.legend()
+        st.pyplot(plt)
+    else:
+        st.error("CSV must contain 'Annual Income (k$)' and 'Spending Score (1-100)' columns.")
+else:
+    st.info("Please upload both a dataset (.csv) and a KMeans model (.pkl).")
