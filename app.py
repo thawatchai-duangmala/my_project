@@ -10,7 +10,7 @@ import numpy as np
 st.set_page_config(page_title="Mall Customer Segmentation", layout="centered")
 
 # App title
-st.title("K-Means Clustering App on Mall Customers Dataset")
+st.title("K-Means Clustering App on Mall Customers Dataset: Group Leaw tao talay la?")
 
 # Sidebar for selecting number of clusters
 st.sidebar.header("Configure Clustering")
@@ -43,7 +43,7 @@ for i in range(num_clusters):
 
 # Plot centroids
 ax.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1],
-           s=300, c='red', marker='X', label='Centroids')
+           s=300, c='red', label='Centroids')
 
 ax.set_title("Customer Segments")
 ax.set_xlabel("Annual Income (scaled)")
