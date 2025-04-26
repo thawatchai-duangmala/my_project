@@ -11,7 +11,6 @@ st.set_page_config(page_title="Mall Customer Segmentation", layout="centered")
 
 # App title
 st.title("Project2_10")
-st.title("K-Means Clustering App on Mall Customers Dataset")
 
 # Sidebar for selecting number of clusters
 st.sidebar.header("Configure Clustering")
